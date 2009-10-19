@@ -8,8 +8,8 @@
  * Do not edit! All changes made to it will be lost.
  */
 
-#ifndef KNOTIFICATION_INTERFACE_H_1254082962
-#define KNOTIFICATION_INTERFACE_H_1254082962
+#ifndef KNOTIFICATION_INTERFACE_H_1255988034
+#define KNOTIFICATION_INTERFACE_H_1255988034
 
 #include <QtCore/QObject>
 #include <QtCore/QByteArray>
@@ -21,14 +21,14 @@
 #include <QtDBus/QtDBus>
 
 /*
- * Proxy class for interface org.kde.VisualNotifications
+ * Proxy class for interface org.freedesktop.Notifications
  */
 class KNotificationInterface: public QDBusAbstractInterface
 {
     Q_OBJECT
 public:
     static inline const char *staticInterfaceName()
-    { return "org.kde.VisualNotifications"; }
+    { return "org.freedesktop.Notifications"; }
 
 public:
     KNotificationInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0);
@@ -43,10 +43,33 @@ public Q_SLOTS: // METHODS
         return asyncCallWithArgumentList(QLatin1String("CloseNotification"), argumentList);
     }
 
-    inline QDBusPendingReply<uint> Notify(const QString &app_name, uint replaces_id, const QString &event_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantMap &hints, int timeout)
+    inline QDBusPendingReply<QStringList> GetCapabilities()
     {
         QList<QVariant> argumentList;
-        argumentList << qVariantFromValue(app_name) << qVariantFromValue(replaces_id) << qVariantFromValue(event_id) << qVariantFromValue(app_icon) << qVariantFromValue(summary) << qVariantFromValue(body) << qVariantFromValue(actions) << qVariantFromValue(hints) << qVariantFromValue(timeout);
+        return asyncCallWithArgumentList(QLatin1String("GetCapabilities"), argumentList);
+    }
+
+    inline QDBusPendingReply<QString, QString, QString, QString> GetServerInformation()
+    {
+        QList<QVariant> argumentList;
+        return asyncCallWithArgumentList(QLatin1String("GetServerInformation"), argumentList);
+    }
+    inline QDBusReply<QString> GetServerInformation(QString &vendor, QString &version, QString &spec_version)
+    {
+        QList<QVariant> argumentList;
+        QDBusMessage reply = callWithArgumentList(QDBus::Block, QLatin1String("GetServerInformation"), argumentList);
+        if (reply.type() == QDBusMessage::ReplyMessage && reply.arguments().count() == 4) {
+            vendor = qdbus_cast<QString>(reply.arguments().at(1));
+            version = qdbus_cast<QString>(reply.arguments().at(2));
+            spec_version = qdbus_cast<QString>(reply.arguments().at(3));
+        }
+        return reply;
+    }
+
+    inline QDBusPendingReply<uint> Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantMap &hints, int timeout)
+    {
+        QList<QVariant> argumentList;
+        argumentList << qVariantFromValue(app_name) << qVariantFromValue(replaces_id) << qVariantFromValue(app_icon) << qVariantFromValue(summary) << qVariantFromValue(body) << qVariantFromValue(actions) << qVariantFromValue(hints) << qVariantFromValue(timeout);
         return asyncCallWithArgumentList(QLatin1String("Notify"), argumentList);
     }
 
@@ -56,8 +79,12 @@ Q_SIGNALS: // SIGNALS
 };
 
 namespace org {
-  namespace kde {
-    typedef ::KNotificationInterface VisualNotifications;
+  namespace freedesktop {
+    namespace DBus {
+      typedef ::KNotificationInterface Introspectable;
+      typedef ::KNotificationInterface Properties;
+    }
+    typedef ::KNotificationInterface Notifications;
   }
 }
 #endif

@@ -107,7 +107,7 @@ MainWindow::MainWindow( QWidget *parent ) :
 
 #ifdef Q_WS_X11
     knotificationIface =
-            new KNotificationInterface( "org.kde.VisualNotifications", "/VisualNotifications",
+            new KNotificationInterface( "org.freedesktop.Notifications", "/org/freedesktop/Notifications",
                                         QDBusConnection::sessionBus(), this );
     connect(knotificationIface, SIGNAL(NotificationClosed(uint,uint)), SLOT(bringToFront(uint,uint)));
 #endif
@@ -598,7 +598,7 @@ void MainWindow::popupMessage( QString message )
 #ifdef Q_WS_X11
         if ( knotificationIface->isValid() ) {
             notificationId = (uint) rand();
-            knotificationIface->Notify( "qTwitter", notificationId, "", "qtwitter.png", title, message,
+            knotificationIface->Notify("qTwitter", notificationId, "qtwitter.png", title, message,
                                         QStringList(), QVariantMap(), 5000 );
         } else {
             trayIcon->showMessage( title, message, QSystemTrayIcon::Information );
