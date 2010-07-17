@@ -158,6 +158,7 @@ void MainWindow::createInternalConnections()
     ui.settingsButton->setShortcut( QKeySequence( Qt::CTRL + Qt::Key_S ) );
 #endif
     ui.updateButton->setShortcut( QKeySequence( Qt::CTRL + Qt::Key_R ) );
+    ui.updateButton->setShortcut( QKeySequence( Qt::Key_F5 ) );
 }
 
 void MainWindow::createExternalConnections()
